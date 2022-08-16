@@ -44,5 +44,5 @@ Reference document:
    - Smack Client, WebSocket: [Source code example of Smack Client and WebSocket](https://github.com/smartinrub/spring-xmpp-websocket-reactjs) || [Build Your Own Web Chat Application With Xmpp](https://sergiomartinrubio.com/projects/build-your-own-web-chat-application-with-xmpp/)
    - WebSocket: [Using WebSocket to build an interactive web application](https://spring.io/guides/gs/messaging-stomp-websocket/) || [Implement Websocket Server and Websocket client using Java](https://viblo.asia/p/su-dung-java-tao-websocket-de-tao-ung-dung-chat-gDVK2QAw5Lj) / 
    - [Integrating websocket with spring boot](https://programming.vip/docs/four-ways-of-integrating-websocket-with-spring-boot.html)
-   - https://viblo.asia/p/kafka-spring-boot-kafka-in-depth-jvElaq9Nlkw
    - [Example of Kafka](https://viblo.asia/p/kafka-spring-boot-kafka-in-depth-jvElaq9Nlkw)
+   - [Demonstrations for Kafka with Spring Boot](https://github.com/ayortanli/kafka-with-springboot)
