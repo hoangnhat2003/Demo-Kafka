@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class KafkaMessage<T> {
-    private String topic;
-    private Long partition;
-    private Long offSet;
+    private String topicName;
+    private Integer numPartitions;
+    private Integer partition;
+    private String key;
     private T message;
 }
