@@ -7,10 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaMessage<T> {
+public class KafkaMessage {
     private String topicName;
-    private Integer numPartitions;
     private Integer partition;
-    private String key;
-    private T message;
+    private Object message;
 }

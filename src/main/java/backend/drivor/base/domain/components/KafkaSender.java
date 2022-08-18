@@ -24,12 +24,10 @@ public class KafkaSender {
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     @Async
-    public void sendMessageWithCallback(KafkaMessage message) throws Exception {
+    public void sendMessage(KafkaMessage message) throws Exception {
 
-        kafkaTopicConfig.createTopic(message.getTopicName(), message.getNumPartitions());
-
-        LoggerUtil.i(TAG, String.format("Sending message {} to topic: {} , partition: {} with key = {}", GsonSingleton.getInstance().toJson(message.getMessage()),message.getTopicName(), message.getPartition(), message.getKey()));
-        ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send(message.getTopicName(), message.getPartition(), message.getKey(), message.getMessage());
+        LoggerUtil.i(TAG, String.format("Sending message {} to topic: {} , partition: {}", GsonSingleton.getInstance().toJson(message.getMessage()),message.getTopicName(), message.getPartition()));
+        ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send(message.getTopicName(), message.getPartition(), null ,message.getMessage());
         future.addCallback(new ListenableFutureCallback<SendResult<String, Object>>() {
             @Override
             public void onSuccess(SendResult<String, Object> result) {

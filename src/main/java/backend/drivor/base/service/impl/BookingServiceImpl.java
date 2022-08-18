@@ -1,10 +1,10 @@
 package backend.drivor.base.service.impl;
 
-import backend.drivor.base.config.rabbitmq.RabbitMQConfig;
-import backend.drivor.base.domain.components.RabbitMQSender;
+import backend.drivor.base.config.kafka.KafkaConfiguration;
+import backend.drivor.base.domain.components.KafkaSender;
 import backend.drivor.base.domain.constant.*;
 import backend.drivor.base.domain.document.*;
-import backend.drivor.base.domain.model.MqMessage;
+import backend.drivor.base.domain.model.KafkaMessage;
 import backend.drivor.base.domain.model.VehicleInfo;
 import backend.drivor.base.domain.request.AcceptBookingRequest;
 import backend.drivor.base.domain.request.DriverArrivedRequest;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import redis.clients.jedis.GeoUnit;
 
 import java.util.Date;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -29,7 +28,7 @@ public class BookingServiceImpl extends ServiceBase implements BookingService {
     private static final String TAG = BookingServiceImpl.class.getSimpleName();
 
     @Autowired
-    private RabbitMQSender messageSender;
+    private KafkaSender kafkaSender;
 
     @Autowired
     private ModelMapper mapper;
@@ -120,12 +119,6 @@ public class BookingServiceImpl extends ServiceBase implements BookingService {
             bookingHistory.setCreateDate(new Date().getTime());
             bookingHistory = bookingHistoryRepository.save(bookingHistory);
             redisCache.setWithExpire(RedisConstant.PREFIX_BOOKING_REQUEST + ":" + bookingHistory.getRequestId(), GsonSingleton.getInstance().toJson(bookingHistory), (int) TimeUnit.MINUTES.toSeconds(30));
-
-//            Send message to RabbitMQ
-            MqMessage message = new MqMessage(RabbitMQConfig.EXCHANGE_BOOKING, RabbitMQConfig.QUEUE_BOOKING + "_INIT_INDEX", RabbitMQConfig.ROUTING_KEY_BOOKING + "_INIT_INDEX", bookingHistory);
-            this.messageSender.send(message);
-            LoggerUtil.i(TAG, "Sending Message to the Queue : " + GsonSingleton.getInstance().toJson(message.getMessage()));
-
         } catch (Exception e) {
             if (accountWallet != null)
                 accountWalletService.unlockBalance(accountWallet, amount);
@@ -193,11 +186,11 @@ public class BookingServiceImpl extends ServiceBase implements BookingService {
         if (!account.getId().equals(bookingHistory.getDriver_account_id()))
             throw ServiceExceptionUtils.unAuthorize();
 
-        // Send message to RabbitMQ
+        // Send message to Kafka
         try {
-            MqMessage message = new MqMessage(RabbitMQConfig.EXCHANGE_BOOKING, RabbitMQConfig.QUEUE_BOOKING + "_ARRIVED_BOOKING", RabbitMQConfig.ROUTING_KEY_BOOKING + "_ARRIVED_BOOKING", bookingHistory);
-            this.messageSender.send(message);
-            LoggerUtil.i(TAG, "Sending Message to the Queue : " + GsonSingleton.getInstance().toJson(message.getMessage()));
+            KafkaMessage message = new KafkaMessage(KafkaConfiguration.BOOKING_TOPIC, 0, bookingHistory );
+            kafkaSender.sendMessage(message);
+            LoggerUtil.i(TAG, "Sending Message to the Kafka : " + GsonSingleton.getInstance().toJson(message.getMessage()));
             redisCache.delete(RedisConstant.PREFIX_BOOKING_REQUEST + ":" + requestId);
         } catch (Exception e) {
             throw ServiceExceptionUtils.handleApplicationException(e.getMessage());

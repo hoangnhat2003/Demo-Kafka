@@ -30,6 +30,7 @@ services:
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
+    restart: always
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
